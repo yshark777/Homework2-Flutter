@@ -54,7 +54,10 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement( // Replace the login screen with another screen
           context, // Identifies the current screens location in flutter
           MaterialPageRoute( // Creates a route to the new screen
-            builder: (context) => const CreateQuizScreen(), // Builds the Create Quiz Screen
+            builder: (context) =>  CreateQuizScreen(
+              username: username, // pass username from login
+              pin: pin, // pass pin from login
+            ), // Builds the Create Quiz Screen
           ), // Ends MatieralPageRoute
         ); // End of Navigator.pushReplacement
       }  // End of if
