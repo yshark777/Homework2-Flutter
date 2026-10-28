@@ -2,8 +2,7 @@ import 'package:flutter/material.dart'; // Imports Flutter's Material Design wid
 import '../models/question.dart'; // Imports Homework 1 Question class
 import '../models/multiple_choice_question.dart'; // imports Homework 1 multiple-choice question class
 import '../models/fill_in_blank_question.dart'; // imports Homework 1 fill-in-the-blank question class
-
-
+import 'results_screen.dart'; // Imports the screen that displays quiz results
 
 class QuizScreen extends StatefulWidget { // Creates a widget that can manage changing data
   final List<Question> questions; // Stores the questions received from CreateQuizScreen
@@ -79,6 +78,19 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
         child: Column( // Arranges the question and choices vertically
           mainAxisSize: MainAxisSize.min, // Keeps the column only as tall as its contents
           children: [ // Starts the list of widgets
+            
+              Text( // Displays the current question number
+                "Question ${currentQuestionIndex + 1} of ${widget.questions.length}", // Shows progress as text
+              ), // Ends Text
+
+              const SizedBox(height: 10), // Adds spacing below the question number
+
+            LinearProgressIndicator( // Creates a visual progress bar
+                value: (currentQuestionIndex + 1) / widget.questions.length, // Calculates progress from 0 to 1
+            ), // Ends LinearProgressIndicator
+
+            const SizedBox(height: 20), // Adds spacing below the progress bar.
+            
             Text(question.stem), // Displays the question text
 
             if (question is MultipleChoiceQuestion) // Checks if the question is multiple-choice
@@ -131,24 +143,20 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
                 ElevatedButton( // Creates the Next or Submit Quiz button
                   onPressed: () { // Runs when the button is clicked
                     if (currentQuestionIndex == widget.questions.length - 1) { // Checks if this is the final question
+                      
                       final score = calculateScore(); // Calculates the student's score
-                      showDialog<void>( // Opens the results dialog
-                        context: context, // Uses the current screen's context
-                        builder: (dialogContext) { // Builds the dialog
-                          return AlertDialog( // Creates the results popup.
-                            title: const Text("Quiz Results"), // Displays the dialog title
-                            content: Text("You scored $score out of ${widget.questions.length}!"), // Displays the score
-                            actions: [ // Starts the dialog buttons
-                              TextButton( // Creates the OK button
-                                onPressed: () { // Runs when OK is clicked
-                                  Navigator.pop(dialogContext); // Closes the dialog
-                                }, // Ends onPressed
-                                child: const Text("OK"), // Displays OK
-                              ), // Ends TextButton
-                            ], // Ends the dialog buttons
-                          ); // Ends AlertDialog
-                        }, // Ends builder
-                      ); // Ends showDialog
+                      Navigator.pushReplacement( // Replaces QuizScreen with ResultsScreen
+                        context, // Uses the current screen's context
+                        MaterialPageRoute( // Creates a route to the results screen
+                          builder: (context) => ResultsScreen( // Creates the results screen.
+                          score: score, // Passes the calculated score
+                          totalQuestions: widget.questions.length, // Pass the number of questions
+                          questions: widget.questions, // Pass the questions themselves
+                          selectedAnswers: Map<int, int>.from(selectedAnswers), // Pass a copy of the multiple-choice answers
+                          textAnswers: Map<int, String>.from(textAnswers), // Pass a copy of the text answers
+                          ), // Ends ResultsScreen
+                        ), // Ends MaterialPageRoute
+                      ); // Ends Navigator.pushReplacement
                     } // end of if
                     else { // Runs when this is not the final question
                       setState(() { // Tells Flutter to rebuild the screen
