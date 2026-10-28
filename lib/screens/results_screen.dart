@@ -4,6 +4,9 @@ import '../models/multiple_choice_question.dart'; // Imports the multiple-choice
 import '../models/fill_in_blank_question.dart'; // Imports the fill-in-the-blank question model.
 
 
+/// Displays the student's quiz score after submission.
+///
+/// Allows students to review questions they answered incorrectly.
 class ResultsScreen extends StatelessWidget { // Creates a screen that displays the quiz results
   
   final int score; // Stores the student's score
@@ -22,7 +25,10 @@ class ResultsScreen extends StatelessWidget { // Creates a screen that displays 
     required this.textAnswers, // Receives the fill-in-the-blank answers
   }); // Ends the constructor
 
-
+  /// Identifies questions the student answered incorrectly.
+  ///
+  /// Compares submitted answers against the correct answers for
+  /// multiple-choice and fill-in-the-blank questions.
   List<int> getIncorrectQuestions() { // Creates a function that finds incorrect question
     final List<int> incorrect = []; // Creates an empty list of incorrect question indexes
 
@@ -54,7 +60,8 @@ class ResultsScreen extends StatelessWidget { // Creates a screen that displays 
   } // End of getIncorrectQuestions
 
 
-
+  
+  /// Builds the results screen with the score and answer review button.
   @override // Overrides the build method
   Widget build(BuildContext context) { // Builds the results screen
     return Scaffold( // Creates the basic screen structure

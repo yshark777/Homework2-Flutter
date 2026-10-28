@@ -4,6 +4,10 @@ import '../models/multiple_choice_question.dart'; // imports Homework 1 multiple
 import '../models/fill_in_blank_question.dart'; // imports Homework 1 fill-in-the-blank question class
 import 'results_screen.dart'; // Imports the screen that displays quiz results
 
+/// Displays quiz questions one at a time.
+///
+/// Supports multiple-choice questions, fill-in-the-blank questions,
+/// optional images, answer selection, and question navigation.
 class QuizScreen extends StatefulWidget { // Creates a widget that can manage changing data
   final List<Question> questions; // Stores the questions received from CreateQuizScreen
   final List<String?> figures; // Stores an optional image filename for each question
@@ -21,6 +25,8 @@ class QuizScreen extends StatefulWidget { // Creates a widget that can manage ch
   } // Ends createState
 } // Ends QuizScreen
 
+
+/// Manages the current question, student answers, and quiz scoring.
 class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changing data
 
   int currentQuestionIndex = 0; // Tracks which question the student is currently viewing
@@ -28,6 +34,10 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
   final Map<int, String> textAnswers = {}; // stores each fill-in-the-blank answer by question index
 
 
+
+  /// Calculates the student's score by checking each submitted answer.
+  ///
+  /// Returns the total number of correctly answered questions.
   // Function to calculate the students score
   int calculateScore(){
 
@@ -66,7 +76,7 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
   }
 
 
-
+  /// Builds the quiz interface with questions, answers, and navigation controls.
   @override // Overrides the build method
   Widget build(BuildContext context) { // Builds the quiz user interface
     

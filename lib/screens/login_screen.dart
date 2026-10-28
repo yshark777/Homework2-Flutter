@@ -3,6 +3,10 @@ import 'dart:convert'; // converts server JSON response into dart data
 import 'package:http/http.dart' as http; // allows us to send HTTP requests to server
 import 'create_quiz_screen.dart'; // Allows login_Screen to access/navigate to the Create Quiz Screen
 
+
+/// Displays the login screen where students enter their username and PIN.
+///
+/// Authenticates students using the university's quiz web service.
 // The login screen widget, used to store username, PIN and login status
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,6 +17,7 @@ class LoginScreen extends StatefulWidget {
   }
 }
 
+/// Manages login input, authentication requests, and login feedback.
 // Stores/manages the state of the login screen
 class _LoginScreenState extends State<LoginScreen> {
 
@@ -27,6 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose(); // Completes Flutter cleanup 
   }
 
+
+  /// Sends the students credentials to the server for authentication.
+  ///
+  /// Navigates to the quiz creation screen when authentication succeeds.
   // Async method for logging in with future return type
   Future<void> _login() async{ 
 
@@ -80,7 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
 
-
+  
+  /// Builds the login interface with username and PIN input fields.
   @override
   Widget build(BuildContext context) {
     

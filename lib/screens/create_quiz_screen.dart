@@ -8,6 +8,9 @@ import 'quiz_screen.dart'; // imports the QuizScreen so we can navigate to it
 
 
 
+/// Displays a screen where students choose how many quiz questions to answer.
+///
+/// Uses the students login information to retrieve quizzes from the server.
 class CreateQuizScreen extends StatefulWidget{ // Create a screen that does not manage changing state yet
 
   final String username; // stores the username from passed from the login screen
@@ -31,6 +34,7 @@ class CreateQuizScreen extends StatefulWidget{ // Create a screen that does not 
 } // Ends CreateQuizScreen.
 
 
+/// Manages question-count input, quiz retrieval, and loading status.
 class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the screens state
   
   final _numberController = TextEditingController(); // Stores the number entered by the student
@@ -43,6 +47,10 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
   } 
 
 
+  /// Retrieves available quizzes from the server until no more are available.
+  ///
+  /// Converts the retrieved questions into question model objects
+  /// and selects up to [number] questions for the student.
   Future<void> _fetchQuiz(int number) async{
 
 
@@ -170,7 +178,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
     } // ends try/catch
   } // Ends _fetchQuiz
 
-  
+  /// Builds the quiz creation screen with question input and a loading button.
   @override
   Widget build(BuildContext context){ // Builds the screens user interface
 
