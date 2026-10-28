@@ -21,9 +21,9 @@ class CreateQuizScreen extends StatefulWidget{ // Create a screen that does not 
   }); // end of constructor
 
 
-  @override // Overrides the createState method.
-  State<CreateQuizScreen> createState() { // Creates the screen's State object.
-    return _CreateQuizScreenState(); // Returns the State object.
+  @override // Overrides the createState method
+  State<CreateQuizScreen> createState() { // Creates the screen's State object
+    return _CreateQuizScreenState(); // Returns the State object
     
   } // Ends createState.
 
@@ -31,18 +31,24 @@ class CreateQuizScreen extends StatefulWidget{ // Create a screen that does not 
 } // Ends CreateQuizScreen.
 
 
-class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the screen's state.
+class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the screens state
   
-  final _numberController = TextEditingController(); // Stores the number entered by the student.
+  final _numberController = TextEditingController(); // Stores the number entered by the student
+  bool _isLoading = false; // Tracks whether the app is currently retrieving quiz questions
   
-  @override // Overrides Flutter's cleanup method.
-  void dispose() { // Runs when this State is permanently removed.
-    _numberController.dispose(); // Cleans up the controller.
-    super.dispose(); // Completes Flutter's cleanup.
-  } // Ends dispose.
+  @override // Overrides Flutters cleanup method
+  void dispose() { // Runs when this State is permanently removed
+    _numberController.dispose(); // Cleans up the controller
+    super.dispose(); // Completes Flutter's cleanup
+  } 
 
 
   Future<void> _fetchQuiz(int number) async{
+
+
+    setState(() { // Tells Flutter that the screens state is changing
+      _isLoading = true; // Marks the app as currently loading quiz question
+    }); // Finishes updating the loading state
 
     print("Student requested $number questions"); // prints the number recieved by the method
     final allQuestions = <dynamic>[]; // creates an empty list to collect questions from multiple quizzes
@@ -128,6 +134,10 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
       print("Question Objects created: ${questionObjects.length}"); // prints num of converted multi choice pregunta
 
       if (!mounted) return; // Stops if CreateQuizScreen is no longer active
+      
+      setState(() { // Updates the Create Quiz screen
+        _isLoading = false; // Stops loading and enables the button again
+      }); // Ends setState
 
       Navigator.push( // opens a new screen
         context, // Provides the location of the current widget in Flutter's widget tree
@@ -140,9 +150,24 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
       ); // Ends Navigator.push
 
     
-    }catch (error) { //(try end) handles network or JSON errors. 
-    print('Quiz request failed: $error :('); // prints the error message
-    } // ends try/catch.
+    }
+    catch (error) { //(try end) handles network or JSON errors
+    
+      print("Quiz request failed: $error"); // Prints the error for debugging
+
+      if (!mounted) return; // Stops if this screen is no longer active
+
+      ScaffoldMessenger.of(context).showSnackBar( // Displays a visible error message
+        const SnackBar( // Creates a temporary message
+          content: Text("Unable to load quiz :(. Please try again."), // Explains the problem
+        ), // Ends SnackBar
+      ); // Ends showSnackBar
+
+      setState(() { // Tells Flutter to update the screen
+        _isLoading = false; // Stops the spinner and enables the button again
+      }); // Ends setState
+
+    } // ends try/catch
   } // Ends _fetchQuiz
 
   
@@ -170,9 +195,11 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
                 ),// end of text field
               ), // text field end
               const SizedBox(height: 16), //Adds space between the field and button
+              
               ElevatedButton( // button for the create quiz button 
-                onPressed: (){ // runs when user clicks button
+                onPressed: _isLoading ? null : () { // Disables the button while questions are loading.
                   final number = int.tryParse(_numberController.text.trim()); // convert the input into an integer   
+                  
                   if(number == null || number <=0){
                     ScaffoldMessenger.of(context).showSnackBar(// shows a message at the bottom of the screen
                       const SnackBar(
@@ -184,7 +211,16 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
                   print("Valid # of preguntas: $number");
                   _fetchQuiz(number);        
                 }, // end of call back
-                  child: const Text("Create Quiz"), // Displays the button text
+                child: _isLoading // Checks whether quiz questions are loading
+                  ? const SizedBox( // Displays a fixed size area for the spinner
+                      width: 20, // Sets the spinner areas width
+                      height: 20, // Sets the spinner areas height
+                      child: CircularProgressIndicator( // Displays the spinning loading indicator
+                        strokeWidth: 2, // Makes the spinner line thinner
+                        color: Colors.white, // Makes the spinner white
+                      ), // Ends CircularProgressIndicator
+                    ) // Ends SizedBox
+                : const Text("Create Quiz"), // Displays normal text when not loading
               ), // End of button
             ], // end list of widgets
           ), // end of column
@@ -194,7 +230,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
     ); // Scaffold end
 
  
- 
+
  
   } // widget end
 
