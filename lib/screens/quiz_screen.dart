@@ -82,128 +82,130 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
       appBar: AppBar( // Creates the top app bar
         title: const Text("Quiz"), 
       ), // End of AppBar
-      body: Center( // Centers the quiz content
-        child: Column( // Arranges the question and choices vertically
-          mainAxisSize: MainAxisSize.min, // Keeps the column only as tall as its contents
-          children: [ // Starts the list of widgets
-            
-              Text( // Displays the current question number
-                "Question ${currentQuestionIndex + 1} of ${widget.questions.length}", // Shows progress as text
-              ), // Ends Text
+      body: SingleChildScrollView( // Allows the quiz screen to scroll vertically.
+        child: Center( // Centers the quiz content
+          child: Column( // Arranges the question and choices vertically
+            mainAxisSize: MainAxisSize.min, // Keeps the column only as tall as its contents
+            children: [ // Starts the list of widgets
+              
+                Text( // Displays the current question number
+                  "Question ${currentQuestionIndex + 1} of ${widget.questions.length}", // Shows progress as text
+                ), // Ends Text
 
-              const SizedBox(height: 10), // Adds spacing below the question number
+                const SizedBox(height: 10), // Adds spacing below the question number
 
-            LinearProgressIndicator( // Creates a visual progress bar
-                value: (currentQuestionIndex + 1) / widget.questions.length, // Calculates progress from 0 to 1
-            ), // Ends LinearProgressIndicator
+              LinearProgressIndicator( // Creates a visual progress bar
+                  value: (currentQuestionIndex + 1) / widget.questions.length, // Calculates progress from 0 to 1
+              ), // Ends LinearProgressIndicator
 
-            const SizedBox(height: 20), // Adds spacing below the progress bar.
-            
-            Text(question.stem), // Displays the question text
+              const SizedBox(height: 20), // Adds spacing below the progress bar.
+              
+              Text(question.stem), // Displays the question text
 
-            if (figure != null && figure.isNotEmpty) // Displays an image only when this question has a figure
-              Padding( // Adds space around the image
-                padding: const EdgeInsets.all(12.0), // Adds 12 pixels of padding
-                child: Image.network( // Downloads and displays the image from the server
-                  Uri.https( // Creates the image URL
-                    "www.cs.utep.edu", // Specifies the server hostname
-                    "/cheon/cs4381/homework/quiz/figure.php", // Specifies the image service
-                    {"name": figure}, // Sends the image filename to the server
-                  ).toString(), // Converts the URL into a string
-                  height: 180, // Limits the image height to 180 pixels
-                  fit: BoxFit.contain, // Shows the entire image without cropping it
-                  loadingBuilder: (context, child, loadingProgress) { // Runs while the image loads
-                    if (loadingProgress == null) return child; // Displays the image when loading finishes
-                    return const CircularProgressIndicator(); // Displays a loading spinner
-                  }, // End of loadingBuilder
-                  errorBuilder: (context, error, stackTrace) { // Runs if the image cannot be loaded
-                    return const Text("Unable to load question image."); // Displays an error message
-                  }, // End of errorBuilder
-                ), // End of Image.network
-              ), // End of Padding
+              if (figure != null && figure.isNotEmpty) // Displays an image only when this question has a figure
+                Padding( // Adds space around the image
+                  padding: const EdgeInsets.all(12.0), // Adds 12 pixels of padding
+                  child: Image.network( // Downloads and displays the image from the server
+                    Uri.https( // Creates the image URL
+                      "www.cs.utep.edu", // Specifies the server hostname
+                      "/cheon/cs4381/homework/quiz/figure.php", // Specifies the image service
+                      {"name": figure}, // Sends the image filename to the server
+                    ).toString(), // Converts the URL into a string
+                    height: 180, // Limits the image height to 180 pixels
+                    fit: BoxFit.contain, // Shows the entire image without cropping it
+                    loadingBuilder: (context, child, loadingProgress) { // Runs while the image loads
+                      if (loadingProgress == null) return child; // Displays the image when loading finishes
+                      return const CircularProgressIndicator(); // Displays a loading spinner
+                    }, // End of loadingBuilder
+                    errorBuilder: (context, error, stackTrace) { // Runs if the image cannot be loaded
+                      return const Text("Unable to load question image."); // Displays an error message
+                    }, // End of errorBuilder
+                  ), // End of Image.network
+                ), // End of Padding
 
-            if (question is MultipleChoiceQuestion) // Checks if the question is multiple-choice
-              ...question.options.asMap().entries.map((entry) { // Loops through choices and their indexes
-                return RadioListTile<int>( // Creates a selectable radio button for an answer
-                  title: Text(entry.value), // Displays the answer choice text
-                  value: entry.key, // Uses the choice's index as its value
-                  groupValue: selectedAnswers[currentQuestionIndex], // Identifies the currently selected answer
-                  onChanged: (value) { // Runs when the student selects an option
-                    setState(() { // Tells Flutter to rebuild the screen
-                      if(value != null){ // checks that the option was selected
-                        selectedAnswers[currentQuestionIndex] = value; // Saves the answer under this question index
-                      } // end of null check
-                    }); // End of setState
-                  }, // End of onChanged
-                ); // End of RadioListTile
-              }), // End of the options loop
-
-            if(question is FillInBlankQuestion) // checks if question is fill in blank
-              Padding( // add space around text input
-                padding: EdgeInsets.all(16.0), // adds 16 pixels of padding
-                child: TextFormField( // Creates a text field that can restore saved text
-                  key: ValueKey(currentQuestionIndex), // Gives each question's text field a unique identity
-                  initialValue: textAnswers[currentQuestionIndex] ?? "", // Restores the previously entered answer
-                  decoration: const InputDecoration( // Defines the text field's appearance
-                    labelText: "Your Answer", // Displays the input label
-                    border: OutlineInputBorder(), // Adds a rectangular border
-                  ), // End of InputDecoration
-                  onChanged: (value) { // Runs whenever user types
-                    textAnswers[currentQuestionIndex] = value; // Saves the typed answer for this question
-                  }, // End of onChanged
-                ), // End of TextFormField
-              ), // end of padding 
-
-            const SizedBox(height: 20), // Adds space above the navigation buttons
-
-            Row( // Places the navigation buttons side by side 
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Spaces the buttons evenly 
-              children: [ // Starts the button list 
-                ElevatedButton( // Creates the Previous button 
-                  onPressed: currentQuestionIndex > 0 ? () { // Allows going back unless we're on the first question
-                    setState(() { // Tells Flutter to rebuild the screen 
-                      currentQuestionIndex--; // Moves to the previous question 
-                  
-                    }); // End of setState
-                  } : null, // Disables Previous on the first question
-                  child: const Text("Previous"), // Displays the button label
-                ), // Ends Previous button
-                
-                ElevatedButton( // Creates the Next or Submit Quiz button
-                  onPressed: () { // Runs when the button is clicked
-                    if (currentQuestionIndex == widget.questions.length - 1) { // Checks if this is the final question
-                      
-                      final score = calculateScore(); // Calculates the student's score
-                      Navigator.pushReplacement( // Replaces QuizScreen with ResultsScreen
-                        context, // Uses the current screen's context
-                        MaterialPageRoute( // Creates a route to the results screen
-                          builder: (context) => ResultsScreen( // Creates the results screen.
-                          score: score, // Passes the calculated score
-                          totalQuestions: widget.questions.length, // Pass the number of questions
-                          questions: widget.questions, // Pass the questions themselves
-                          selectedAnswers: Map<int, int>.from(selectedAnswers), // Pass a copy of the multiple-choice answers
-                          textAnswers: Map<int, String>.from(textAnswers), // Pass a copy of the text answers
-                          ), // Ends ResultsScreen
-                        ), // Ends MaterialPageRoute
-                      ); // Ends Navigator.pushReplacement
-                    } // end of if
-                    else { // Runs when this is not the final question
+              if (question is MultipleChoiceQuestion) // Checks if the question is multiple-choice
+                ...question.options.asMap().entries.map((entry) { // Loops through choices and their indexes
+                  return RadioListTile<int>( // Creates a selectable radio button for an answer
+                    title: Text(entry.value), // Displays the answer choice text
+                    value: entry.key, // Uses the choice's index as its value
+                    groupValue: selectedAnswers[currentQuestionIndex], // Identifies the currently selected answer
+                    onChanged: (value) { // Runs when the student selects an option
                       setState(() { // Tells Flutter to rebuild the screen
-                        currentQuestionIndex++; // Moves to the next question
-                      }); // Ends setState
-                    } // Ends the final-question check
-                  }, // Ends onPressed
-                  child: Text( // Displays the appropriate button label
-                    currentQuestionIndex == widget.questions.length - 1 // Checks whether this is the final question
-                        ? "Submit Quiz" // Shows Submit Quiz on the final question
-                        : "Next", // Shows Next on earlier questions
-                  ), // Ends Text
-                ), // Ends the Next or Submit Quiz button
-              ], // End of the button list
-            ), // End of Row
-          ], // End of the children list
-        ), // End of Column
-      ), // End of Center
+                        if(value != null){ // checks that the option was selected
+                          selectedAnswers[currentQuestionIndex] = value; // Saves the answer under this question index
+                        } // end of null check
+                      }); // End of setState
+                    }, // End of onChanged
+                  ); // End of RadioListTile
+                }), // End of the options loop
+
+              if(question is FillInBlankQuestion) // checks if question is fill in blank
+                Padding( // add space around text input
+                  padding: EdgeInsets.all(16.0), // adds 16 pixels of padding
+                  child: TextFormField( // Creates a text field that can restore saved text
+                    key: ValueKey(currentQuestionIndex), // Gives each question's text field a unique identity
+                    initialValue: textAnswers[currentQuestionIndex] ?? "", // Restores the previously entered answer
+                    decoration: const InputDecoration( // Defines the text field's appearance
+                      labelText: "Your Answer", // Displays the input label
+                      border: OutlineInputBorder(), // Adds a rectangular border
+                    ), // End of InputDecoration
+                    onChanged: (value) { // Runs whenever user types
+                      textAnswers[currentQuestionIndex] = value; // Saves the typed answer for this question
+                    }, // End of onChanged
+                  ), // End of TextFormField
+                ), // end of padding 
+
+              const SizedBox(height: 20), // Adds space above the navigation buttons
+
+              Row( // Places the navigation buttons side by side 
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Spaces the buttons evenly 
+                children: [ // Starts the button list 
+                  ElevatedButton( // Creates the Previous button 
+                    onPressed: currentQuestionIndex > 0 ? () { // Allows going back unless we're on the first question
+                      setState(() { // Tells Flutter to rebuild the screen 
+                        currentQuestionIndex--; // Moves to the previous question 
+                    
+                      }); // End of setState
+                    } : null, // Disables Previous on the first question
+                    child: const Text("Previous"), // Displays the button label
+                  ), // Ends Previous button
+                  
+                  ElevatedButton( // Creates the Next or Submit Quiz button
+                    onPressed: () { // Runs when the button is clicked
+                      if (currentQuestionIndex == widget.questions.length - 1) { // Checks if this is the final question
+                        
+                        final score = calculateScore(); // Calculates the student's score
+                        Navigator.pushReplacement( // Replaces QuizScreen with ResultsScreen
+                          context, // Uses the current screen's context
+                          MaterialPageRoute( // Creates a route to the results screen
+                            builder: (context) => ResultsScreen( // Creates the results screen.
+                            score: score, // Passes the calculated score
+                            totalQuestions: widget.questions.length, // Pass the number of questions
+                            questions: widget.questions, // Pass the questions themselves
+                            selectedAnswers: Map<int, int>.from(selectedAnswers), // Pass a copy of the multiple-choice answers
+                            textAnswers: Map<int, String>.from(textAnswers), // Pass a copy of the text answers
+                            ), // Ends ResultsScreen
+                          ), // Ends MaterialPageRoute
+                        ); // Ends Navigator.pushReplacement
+                      } // end of if
+                      else { // Runs when this is not the final question
+                        setState(() { // Tells Flutter to rebuild the screen
+                          currentQuestionIndex++; // Moves to the next question
+                        }); // Ends setState
+                      } // Ends the final-question check
+                    }, // Ends onPressed
+                    child: Text( // Displays the appropriate button label
+                      currentQuestionIndex == widget.questions.length - 1 // Checks whether this is the final question
+                          ? "Submit Quiz" // Shows Submit Quiz on the final question
+                          : "Next", // Shows Next on earlier questions
+                    ), // Ends Text
+                  ), // Ends the Next or Submit Quiz button
+                ], // End of the button list
+              ), // End of Row
+            ], // End of the children list
+          ), // End of Column
+        ), // End of Center
+      ), // End of SingleChildScrollView 
     ); // End of Scaffold
   } // End of build
 } // End of _QuizScreenState
