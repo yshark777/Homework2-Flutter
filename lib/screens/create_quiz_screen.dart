@@ -49,7 +49,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
     int quizNumber = 1; // starts with Quiz 01
 
     try{
-      while(allQuestions.length < number){ // repeats while we still need more questions
+      while(true){ // Keeps requesting quizzes until the server reports no more quizzes
         final quizId = "quiz${quizNumber.toString().padLeft(2,"0")}"; // add 0 in front of int
         print("Requesting $quizId"); // Prints the current quiz ID for testing
 
@@ -69,7 +69,9 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
           throw Exception("Server conncetion ERROR :(");
         } // end of server connection check
 
-        final data = jsonDecode(response.body); // converts the JSON response into Dart data
+        final responseText = utf8.decode(response.bodyBytes, allowMalformed: true); // Decodes the server response and replaces invalid UTF-8 bytes
+
+        final data = jsonDecode(responseText); // Converts the decoded JSON text into Dart data
 
         if(data["response"] != true){ // checks if server has no more quizzes
             print("No more quizes left :(");
