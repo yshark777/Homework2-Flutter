@@ -134,10 +134,10 @@ class ResultsScreen extends StatelessWidget { // Creates a screen that displays 
                 ); // End of  showDialog
               }, // End of  onPressed
               child: const Text("Review Incorrect Answers"), // Displays the button labe  
-            ), // End of the Review Incorrect Answers button.
-          ], // End of the Column's children list.
+            ), // End of the Review Incorrect Answers button
+          ], // End of the Column's children list
         ), // End of of Column
-      ), // End of Center.
+      ), // End of Center
     ); // End of Scaffold
   } // End of build
 } // End of ResultsScreen

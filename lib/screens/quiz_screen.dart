@@ -6,10 +6,13 @@ import 'results_screen.dart'; // Imports the screen that displays quiz results
 
 class QuizScreen extends StatefulWidget { // Creates a widget that can manage changing data
   final List<Question> questions; // Stores the questions received from CreateQuizScreen
+  final List<String?> figures; // Stores an optional image filename for each question
+
 
   const QuizScreen({ // Defines the QuizScreen constructor
     super.key, // Passes the widget key to the parent class
     required this.questions, // Requires the list of questions
+    this.figures = const [], // Receives image filenames, defaulting to an empty list.
   }); // Ends the constructor
 
   @override // Overrides the createState method
@@ -70,6 +73,11 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
 
     final question = widget.questions[currentQuestionIndex]; // Gets the question at the current index
 
+    final String? figure = currentQuestionIndex < widget.figures.length // Checks whether this question has a matching figure entry
+    ? widget.figures[currentQuestionIndex] // Gets the image filename for the current question
+    : null; // Uses null when no figure entry exists
+
+
     return Scaffold( // Provides the basic screen structure
       appBar: AppBar( // Creates the top app bar
         title: const Text("Quiz"), 
@@ -92,6 +100,27 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
             const SizedBox(height: 20), // Adds spacing below the progress bar.
             
             Text(question.stem), // Displays the question text
+
+            if (figure != null && figure.isNotEmpty) // Displays an image only when this question has a figure
+              Padding( // Adds space around the image
+                padding: const EdgeInsets.all(12.0), // Adds 12 pixels of padding
+                child: Image.network( // Downloads and displays the image from the server
+                  Uri.https( // Creates the image URL
+                    "www.cs.utep.edu", // Specifies the server hostname
+                    "/cheon/cs4381/homework/quiz/figure.php", // Specifies the image service
+                    {"name": figure}, // Sends the image filename to the server
+                  ).toString(), // Converts the URL into a string
+                  height: 180, // Limits the image height to 180 pixels
+                  fit: BoxFit.contain, // Shows the entire image without cropping it
+                  loadingBuilder: (context, child, loadingProgress) { // Runs while the image loads
+                    if (loadingProgress == null) return child; // Displays the image when loading finishes
+                    return const CircularProgressIndicator(); // Displays a loading spinner
+                  }, // End of loadingBuilder
+                  errorBuilder: (context, error, stackTrace) { // Runs if the image cannot be loaded
+                    return const Text("Unable to load question image."); // Displays an error message
+                  }, // End of errorBuilder
+                ), // End of Image.network
+              ), // End of Padding
 
             if (question is MultipleChoiceQuestion) // Checks if the question is multiple-choice
               ...question.options.asMap().entries.map((entry) { // Loops through choices and their indexes

@@ -96,9 +96,14 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
       print("Selected questions: ${selectedQuestions.length}"); // prints how many questions were selected
 
       final questionObjects = <Question>[]; // creates a empty list that will store our homework q question objects
+      final figures = <String?>[]; // Stores the optional image filename for each question
+
 
       for(final item in selectedQuestions){ // Goes through each selected JSON question
-          if(item["type"] == 1){ // checks if this item is a MultipleChoice Question
+
+          figures.add(item["figure"]?.toString()); // Saves the image filename, or null if there is no image
+
+          if(item["type"] == 1){ // Checks if this item is a MultipleChoice Question
             final question = MultipleChoiceQuestion( // creates a MultipleChoice Question object
               item["stem"] as String, // gets the question text from JSON
               item["answer"] as int, // gets the correct answer nummber
@@ -127,6 +132,7 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> { // Stores the scr
         MaterialPageRoute( // Creates a route to the next screen
           builder: (context) => QuizScreen( // Builds the QuizScreen
             questions: questionObjects, // Passes the converted Question objects to QuizScreen
+            figures: figures, // Passes the matching image filenames
           ), // Ends QuizScreen
         ), // Ends MaterialPageRoute
       ); // Ends Navigator.push
