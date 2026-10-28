@@ -26,7 +26,7 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
   final Map<int, String> textAnswers = {}; // stores each fill-in-the-blank answer by question index
 
 
-  //function to calculate the students score
+  // Function to calculate the students score
   int calculateScore(){
 
     int score = 0; // score starts at zero
@@ -35,16 +35,28 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
       final question = widget.questions[i]; // gets the current question
 
       if(question is MultipleChoiceQuestion){
-        final selected = selectedAnswers[i]; // gets the current question
+        final selected = selectedAnswers[i]; // Gets the current question
 
         if(selected != null && selected + 1 == question.answer){ // compares the selected option with the correct answer
-            score++; // adds 1 point for a correcct answer
+            score++; // adds 1 point for a correct answer
+        }
+
+      }
+
+      if (question is FillInBlankQuestion){
+        final studentAnswer = (textAnswers[i] ?? "").trim().toLowerCase(); // Get Student answer
+
+        final isCorrect = question.answer.any( // Checks the list of accepted answers
+          (answer) => answer.trim().toLowerCase() == studentAnswer, // Compares the answers without caps or spaces
+        );
+
+        if(studentAnswer.isNotEmpty  && isCorrect){ // Checks if student entered a acceptable answer
+          score++; // adds 1 point for a correct answer
         }
 
       }
 
     } // loop end 
-
 
 
     return score;
@@ -115,17 +127,42 @@ class _QuizScreenState extends State<QuizScreen> { // Manages the quiz's changin
                   } : null, // Disables Previous on the first question
                   child: const Text("Previous"), // Displays the button label
                 ), // Ends Previous button
-
-                ElevatedButton( // Creates the Next button
-                  onPressed: currentQuestionIndex < widget.questions.length - 1 ? () { // Allows advancing unless we're on the last question
-                    setState(() { // Tells Flutter to rebuild the screen
-                      currentQuestionIndex++; // Moves to the next question
-          
-                    }); // Ends setState
-                  } : null, // Disables Next on the last question
-                  child: const Text("Next"), // Displays the button label
-                ), // End of Next button
-              ], // Ends of the button list
+                
+                ElevatedButton( // Creates the Next or Submit Quiz button
+                  onPressed: () { // Runs when the button is clicked
+                    if (currentQuestionIndex == widget.questions.length - 1) { // Checks if this is the final question
+                      final score = calculateScore(); // Calculates the student's score
+                      showDialog<void>( // Opens the results dialog
+                        context: context, // Uses the current screen's context
+                        builder: (dialogContext) { // Builds the dialog
+                          return AlertDialog( // Creates the results popup.
+                            title: const Text("Quiz Results"), // Displays the dialog title
+                            content: Text("You scored $score out of ${widget.questions.length}!"), // Displays the score
+                            actions: [ // Starts the dialog buttons
+                              TextButton( // Creates the OK button
+                                onPressed: () { // Runs when OK is clicked
+                                  Navigator.pop(dialogContext); // Closes the dialog
+                                }, // Ends onPressed
+                                child: const Text("OK"), // Displays OK
+                              ), // Ends TextButton
+                            ], // Ends the dialog buttons
+                          ); // Ends AlertDialog
+                        }, // Ends builder
+                      ); // Ends showDialog
+                    } // end of if
+                    else { // Runs when this is not the final question
+                      setState(() { // Tells Flutter to rebuild the screen
+                        currentQuestionIndex++; // Moves to the next question
+                      }); // Ends setState
+                    } // Ends the final-question check
+                  }, // Ends onPressed
+                  child: Text( // Displays the appropriate button label
+                    currentQuestionIndex == widget.questions.length - 1 // Checks whether this is the final question
+                        ? "Submit Quiz" // Shows Submit Quiz on the final question
+                        : "Next", // Shows Next on earlier questions
+                  ), // Ends Text
+                ), // Ends the Next or Submit Quiz button
+              ], // End of the button list
             ), // End of Row
           ], // End of the children list
         ), // End of Column
