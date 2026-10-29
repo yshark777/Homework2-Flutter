@@ -81,8 +81,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     } // Try end
     catch(error){// If server response fails
-        print("Login error!!!!: $error");
+      if (!mounted) return; // Stops if this screen is no longer active
 
+      ScaffoldMessenger.of(context).showSnackBar( // Displays a message to the user
+        const SnackBar( // Creates a temporary notification
+          content: Text( // Creates the message text
+            "Unable to connect to the server :O. Please check your internet connection!",
+          ), // End of Text
+        ), // End of SnackBar
+      ); // End of showSckBar
     } // Catch end
   } // End _login() method
 
